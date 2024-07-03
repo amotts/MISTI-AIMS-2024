@@ -10,6 +10,6 @@ Each subfolder contains a ReadMe file with a much more detailed explanation of t
 
 ## Contents
 The projects I worked on are:
-1) Thermal Modeling and Design Considerations for Electronics Housings
-2) Data Analysis from ReefScan Deep and Altitude Keeping Control
-3) Suction Anchor Removal Force Modeling
+1) *Thermal Modeling and Design Considerations for Electronics Housings*
+2) *Data Analysis from ReefScan Deep and Altitude Keeping Control*
+3) *Suction Anchor Removal Force Modeling*
