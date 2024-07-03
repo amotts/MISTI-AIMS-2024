@@ -8,6 +8,26 @@ Initial modeling was primarily documented in the series of PDFs titled "Aims_The
 
 At this point it was clear that additional methods were necessary to dissipate heat. A radially expaning clamp to hold components to the inside of the housing directly with aluminium was prototyped in Inventor and adjusted for production. (Update if/when prototype is produced).
 
-After consultation with Trevor, a heat pipe from the electronics to the end cap was selected as the likely method forward. From modeling, the endcap was not sufficient to dissipate the full amount of heat without reaching a temperature close to if not exceeding the limit of 65 \degree C. New designs for incoperating fins were modeled in Inventor and FEA performed to evaluate structural and thermal performance.
+After consultation with Trevor, a heat pipe from the electronics to the end cap was selected as the likely method forward. From modeling, the endcap was not sufficient to dissipate the full amount of heat without reaching a temperature close to if not exceeding the limit of 65 \degree C. New designs for incoperating fins were modeled in Inventor and Nastran FEA performed to evaluate structural and thermal performance.
 
-## Files
+## Uploaded Files
+### AIMS Thermal Study
+PDF writeups of the different early stages of the thermal modeling project. Original files are in Overleaf
+
+### Thermal Graphing
+Functions to plot all of the temperature data as a function of time from the photo log csv files in the specified folder path. Converts the filename date stamp into elapsed time. Hardcoded good and bad log number lists can exclude/include only certain log numbers. This was the first attempt at processing the data from the photo logs and is slightly clunky and contains many commented out troubleshooting and exploratory components. Can call the [solve_thermal_ivp] function from Thermal Differential Graph to plot the ODE solution on top of the log data.
+
+### Thermal Differential Graph
+Function to use the scipy.integrate solve_ivp function to compute the temperature by solving a system of equations. Based on the simple model considering only aluminium and glass and ignoring delrin. All values and constants are hardcoded in. Was not updated to include any additional considerations.
+
+## Other Files
+### MATLAB Online
+Several files on MATLAB online (amotz@mit.edu) for solving system of equations for the thermal resistance.
+- Proposed_Thermal_Design.m
+- Housing_Model_Thermal.m
+- Housing_Model_Thermal2.m
+
+### Inventor
+Numerous files in Inventor including part, assembly, STEP, and FEA. I don't know if there is a good way to store/archive them but probably will not be on GitHub.
+- Camera Clamp files
+- Endcap files
