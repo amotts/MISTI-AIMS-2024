@@ -85,14 +85,16 @@ class PhotoLogData:
 
     def initializeData(self, filepath, numlog):
         """
-        Reads the data from the specified photo log number from the provided folder path
+        Reads the data from the specified photo log number from the provided folder path. Searches within 'C: Users amotz Documents'
 
         Fills out the object parameters for numlog, filepath, filename, sensor_ID, and creates the df
 
         Additional columns are created in the df for the elapsed time, distance traveled per data point, the cumulative distance traveled, and the total water depth
         """
         self.numlog = numlog
-        self.filepath = filepath
+        root_name = r'C:\Users\amotz\Documents'
+        self.filepath = os.path.join(root_name, filepath)
+
 
         #Find the file with the correct log number and load it
         for filename in os.listdir(self.filepath):

@@ -9,6 +9,8 @@ The goal of this project was to analyze existing data from the ReefScan deep for
 
 The data was read from the logfiles and compiled into a custom class in python to allow for processing. Filtering was attempted with gaussian, lowpass, and kalman filters. Additional functionalities to discard single extreme values were implemented. A realtime implimentation of the Kalman filter was implemented as another python object class and applied to generate a flight paths using inputted control conditions. Collisions with the ground can then be detected and tallied.
 
+Forward look capabilities was designed to mimic if there was a ping sonar mounted on the vehicle at specified angle, allowing ground data to be generated in advance of the vehicle. First implimentation of this assumes a fixed angle of the vehicle body and thus the sonar. All values are calculated in absolute coordinates from the starting position of the vehicle. Actual implementation will either need relative position to the vehicle or vehicle will need to track it's position relative to the "fixed" origin that is set. e.g. the sonar will give a range. The angle will be known from the mounting angle and vehicle angle and thus a relative depth and distance from the vehicle can be established. Either the ground will need to constantly move towards the vehicle in relative or the vehicle will need to move relative to the static ground.
+
 I did my best to commend and provide documentation throughout the files, especially when defining class methods and functions, but not everything is fully explained and might still have some quirks and hardcodes.
 
 ## Method
@@ -37,10 +39,16 @@ The file used to run and use the createFlightPath and  checkCollisions feature o
 One-off file to find maximum vertical velocities in the Reefscan Deep data to inform the platform capabilities and limtatations for flight planning
 
 ### [Flight Modeling Functions](FlightModelingFunctions.py)
-A restructuring of the createFlightPath and checkCollisions functionalities.Simulates flying along the bottom at a set speed and altitude. Interpolates from the ground signal to get a depth reading and plans/flies a path based on the provided specs and a realtime Kalman filter from Kalman Functions. Checks for total collision points and collision occurences between a flight path and ground and plots them.
+A restructuring of the createFlightPath and checkCollisions functionalities.Simulates flying along the bottom at a set speed and altitude. Interpolates from the ground signal to get a depth reading and plans/flies a path based on the provided specs and a realtime Kalman filter from Kalman Functions. Checks for total collision points and collision occurences between a flight path and ground and plots them. 
 
 ### [Flight Modeling](FlightModeling.py)
 The file used to run and use the real time flight path creation and check for collisions. One section to run for analyzing a single flight path, and one section for calculating the collisions for a wide range of altitudes and speeds across all photo log depth profiles.
+
+### [Forward Look Functions](ForwardLookFunctions.py)
+Functions to simulate a forward tilted ping sonar. Inputs of a current position, ground, and sonar angle for a ground data point.
+
+### [Forward Look](ForwardLook.py)
+The file used to run and test the Forward Look functions.
 
 
 ## Other Files

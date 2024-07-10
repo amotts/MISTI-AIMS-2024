@@ -2,6 +2,7 @@ from DepthAnalysisFunctions import *
 from KalmanFunctions import *
 import numpy as np
 from scipy import interpolate as interp
+from scipy.optimize import fsolve
 
 xy_signal = namedtuple('Signal', ['x', 'y'])
 
@@ -94,3 +95,4 @@ def checkCollisions(ground, flight, plot_collisions=False, n=15):
 
 
     return(total_occasions)
+
