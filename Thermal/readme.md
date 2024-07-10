@@ -10,6 +10,8 @@ At this point it was clear that additional methods were necessary to dissipate h
 
 After consultation with Trevor, a heat pipe from the electronics to the end cap was selected as the likely method forward. From modeling, the endcap was not sufficient to dissipate the full amount of heat without reaching a temperature close to if not exceeding the limit of 65 \degree C. New designs for incoperating fins were modeled in Inventor and Nastran FEA performed to evaluate structural and thermal performance.
 
+FEA in NASTRAN confirmed that endcap was insufficient to dissipate the heat. However, once CFD was used, results were significantly different that expected. I'm not completely sure where all the heat is going since the heat fluxes don't quite seem to add up correctly but the interaction is far more spacially dependent than previously considered. 
+
 ## Uploaded Files
 ### AIMS Thermal Study
 PDF writeups of the different early stages of the thermal modeling project. Original files are in Overleaf
@@ -31,3 +33,6 @@ Several files on MATLAB online (amotz@mit.edu) for solving system of equations f
 Numerous files in Inventor including part, assembly, STEP, and FEA. I don't know if there is a good way to store/archive them but probably will not be on GitHub.
 - Camera Clamp files
 - Endcap files
+
+### CFD
+Numerous file types for the CFD models and settings, and then others for results. Very disorganized at the moment but most files were early attempts and software familiarization. 
