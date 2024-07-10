@@ -33,7 +33,7 @@ Restructuring of the Kalman filter from Kalman Depth Attempt into a function tha
 ### [Collision Analysis](CollisionAnalysis.py)
 The file used to run and use the createFlightPath and  checkCollisions feature of the photo log class as defined in Depth Analysis Functions. These methods do not work in/simulate real time and are deprecated from the introduction of Flight Modeling Functions.
 
-### [Velocity Analysis](VelocityAnalysis.py)
+### [Velocity Analysis](Velocity_Analysis.py)
 One-off file to find maximum vertical velocities in the Reefscan Deep data to inform the platform capabilities and limtatations for flight planning
 
 ### [Flight Modeling Functions](FlightModelingFunctions.py)

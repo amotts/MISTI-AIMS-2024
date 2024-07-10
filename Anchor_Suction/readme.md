@@ -7,4 +7,5 @@ Ultimately, a plot was generated that looked similar to the graphs from the pape
 
 ## Other Files
 ### MATLAB Online
-The calculations and graphic was all done on MATLAB online (amotz@mit.edu) in the file Anchor_Suction.m
+The calculations and graphic was all done on MATLAB online (amotz@mit.edu) in the file Anchor_Suction.m. 
+An unsucessful attempt at regression was attempted in Anchor_Regression.m
