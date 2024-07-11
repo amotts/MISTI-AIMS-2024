@@ -10,10 +10,16 @@ from ForwardLookFunctions import *
 
 
 class App:
+    """
+    FOR USE WITH ARTIFICIAL GROUND NOT PHOTO LOG DATA
+    An application class for viewing the forward look sonar data from the perspective of the vehicle as it travels
+    Displays for every iternum timesteps (default is 3Hz).
+    Show the ground, the FL ground points in front of the vehicle.
+    """
     def __init__(self, root, lognum):
         self.root = root
         self.root.title("Iterate and Pause with Graph")
-        self.iternum = 10
+        self.iternum = 5
 
         self.alt = 2.5
         self.speed = 1
@@ -116,7 +122,7 @@ class App:
 
 # Create the main application window
 root = tk.Tk()
-app = App(root, 1)
+app = App(root, 2)
 
 # Run the application
 root.mainloop()

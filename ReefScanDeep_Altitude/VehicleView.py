@@ -8,8 +8,12 @@ from KalmanFunctions import *
 from FlightModelingFunctions import *
 from ForwardLookFunctions import *
 
-
 class App:
+    """
+    An application class for viewing the forward look sonar data from the perspective of the vehicle as it travels
+    Displays for every iternum timesteps (default is 3Hz).
+    Show the ground, the FL ground points in front of the vehicle.
+    """
     def __init__(self, root, lognum):
         self.root = root
         self.root.title("Iterate and Pause with Graph")
