@@ -72,12 +72,24 @@ def applyKalman(measurements, depth_var=2, sensor_var=10, delta_depth=0, discard
 
 class RealTimeKalman:
     """
+    Real-time impelentation of a basic Kalman Filter. Same functionality as the apply Kalman function above but uses a class method to allow realtime processing 
+    of measurements as they arrive while updating and storing the changes to the filter.
 
+    Requires an initial value to be set before use via set_initial_values(x0)
+
+    Runs by calling run_kalman(z), returns filtered value
+
+    Parameters:
+    ------------
+    measurements - The signal to be filtered\\
+    depth_var - The variance assumed for the depth (Default = 2) \\
+    sensor_var - The variance assumed for the depth sensor(s) (Default = 10) \\
+    delta_depth - The initial depth rate of change in m per frame (Default = 0) \\
+    upper_extreme - The bounds for downwards single frame change (Default = 5) \\
+    lower_extreme - The bounds for upwards single frame change (Default = 2) \\
+    extreme_lim - The Number of extreme points ignored before assuming to be valid data \\
     """
     def __init__(self, depth_var=2, sensor_var=10, delta_depth=0, discard_extreme = True, upper_extreme=2, lower_extreme=5, extreme_lim = 2):
-        """
-
-        """
         self.depth_var = depth_var
         self.sensor_var =sensor_var
         self.delta_depth = delta_depth
