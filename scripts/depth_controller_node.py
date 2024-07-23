@@ -16,7 +16,7 @@ from KalmanFunctions import *
 class KalmanDepthController:
     def __init__(self):
         self.initial_depth = rospy.get_param('initial_depth', 5.0)
-        self.alt = rospy.get_param('desired_alt', 2.0)
+        self.alt_goal = rospy.get_param('desired_alt', 2.0)
 
         self.depth_var=rospy.get_param('depth_var', 2)
         self.sensor_var=rospy.get_param('sensor_var', 10)
@@ -34,17 +34,30 @@ class KalmanDepthController:
         self.command_pose = PoseStamped()
         self.command_pose.header.frame_id = "map"
 
-        self.state_sub = rospy.Subscriber("mavros/state", State, self.state_cb)
-        self.ping_sub = rospy.Subscriber("feedback_loop/depth_sensor", Float64, self.ping_rec)
-        self.local_pos_pub = rospy.Publisher("mavros/setpoint_position/local", PoseStamped, queue_size=10)
+        # self.state_sub = rospy.Subscriber("mavros/state", State, self.state_cb)
+        self.ping_sub = rospy.Subscriber("feedback_loop/ping_depth", Float64, self.ping_rec)
+        self.ping_sub = rospy.Subscriber("feedback_loop/pressure_depth", Float64, self.pressure_rec)
+        self.cmd_pos_pub = rospy.Publisher("mavros/setpoint_position/local", PoseStamped, queue_size=10)
+
+        self.alt_delta = None
+        self.vehicle_depth = None
 
 
-    def state_cb(self, msg):
-        self.current_state = msg
+    # def state_cb(self, msg):
+    #     self.current_state = msg
 
     def ping_rec(self, msg):
-        self.command_pose.pose.position.z = self.kf.run_kalman(msg.data) + self.alt
-        self.local_pos_pub.publish(self.command_pose)
+        self.alt_delta = self.kf.run_kalman(msg.data) - self.alt_goal
+        self.publish_alt()
+    
+    def pressure_rec(self, msg):
+        self.vehicle_depth = msg.data
+
+    def publish_alt(self):
+        if self.vehicle_depth != None and self.alt_delta != None: 
+            self.command_pose.pose.position.z = self.vehicle_depth - self.alt_delta
+            self.cmd_pos_pub.publish(self.command_pose)
+
 
 if __name__ == '__main__':
     # Initialise node with rospy

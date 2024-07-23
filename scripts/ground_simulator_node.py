@@ -26,7 +26,9 @@ class GroundSimulator:
         self.positions = self.df['cumulative_distance'].values
         self.depths = self.df['total depth'].values
 
-        self.depth_pub = rospy.Publisher('/feedback_loop/depth_sensor', Float64, queue_size=10) #Should probably publish as a range (CHECK GH Nodes)
+        self.pressure_depth_pub = rospy.Publisher('/feedback_loop/pressure_depth', Float64, queue_size=10) #Should probably publish as a range (CHECK GH Nodes)
+        self.ping_depth_pub = rospy.Publisher('/feedback_loop/ping_depth', Float64, queue_size=10)
+        
         rospy.Subscriber('/mavros/local_position/pose', PoseStamped , self.pose_callback)
         
         self.current_ping_depth = 0
@@ -51,17 +53,19 @@ class GroundSimulator:
         current_time = rospy.Time.now().to_sec()
         elapsed_time = current_time - self.start_time
         current_position = self.speed * elapsed_time
-        self.vehicle_hx[0].append(current_position)
         self.current_vehicle_depth = msg.pose.position.z
+
+        self.vehicle_hx[0].append(current_position)
         self.vehicle_hx[1].append(self.current_vehicle_depth)
 
     def update_plot(self, frame):
         current_time = rospy.Time.now().to_sec()
         elapsed_time = current_time - self.start_time
         current_position = self.speed * elapsed_time
-        self.current_ping_depth = self.interpolate_depth(current_position)
+        self.current_ping_depth = self.current_vehicle_depth - self.interpolate_depth(current_position)
         
-        self.depth_pub.publish(self.current_ping_depth)
+        self.ping_depth_pub.publish(self.current_ping_depth)
+        self.pressure_depth_pub.publish(self.current_vehicle_depth)
         
         self.vehicle_marker.set_data([current_position], [self.current_vehicle_depth])
         self.path.set_data(self.vehicle_hx)

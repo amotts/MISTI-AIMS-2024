@@ -73,7 +73,7 @@ if __name__ == "__main__":
                 last_req = rospy.Time.now()
 
         if not current_state.armed:
-            pose.pose.position.z = 1
+            pose.pose.position.z = 10
             local_pos_pub.publish(pose)
         else:
             rospy.signal_shutdown("Set Offb closed")
