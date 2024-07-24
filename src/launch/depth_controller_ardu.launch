@@ -1,16 +1,16 @@
 <launch>
+	<arg name="autopilot" default="ArduPilot"/>
 
-	<arg name="autopilot" default="PX4"/>
-
-	<!-- Include the MAVROS node with SITL and Gazebo -->
-	<include file="$(find px4)/launch/mavros_posix_sitl.launch">
-	 <param name="world" value="$(find mavlink_sitl_gazebo)/worlds/custom.world"/>
+	<include file="$(find mavros)/launch/apm.launch">
+	  <arg name="fcu_url" value="udp://:14550@" />
 	</include>
+
+	<node pkg="feedback_control" type="start_ardu_sim.sh" name="sim_vehicle" required="true" output="screen" />
 
 	<node pkg="feedback_control" type="set_offb.py" name="set_offb" output="screen" />
 	  <param name="autopilot" value="$(arg autopilot)"/>
 
-	<node pkg="feedback_control" type="ground_simulator_node.py" name="vehicle_simulator" required="true" output="screen"/>
+	<node pkg="feedback_control" type="ground_simulator_node.py" name="vehicle_simulator" required="true" output="screen" />
       <param name="csv_file" value="/home/amotz/Documents/depth_profile_2.csv"/>
       <param name="speed" value="2.0"/>
 	  <param name="pub_rate" value ="3.0"/>

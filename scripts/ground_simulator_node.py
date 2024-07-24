@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-ROS node to simulate the depth sensor data. Currently publishes a single depth value. TODO: ping sonar only
+ROS node to simulate the depth sensor data. 
 Reads ground profile from CSV file and interpolates points assuming constant x_velocity a specified in parameters
 Starts running when vehicel is in OFFBOARD or GUIDED and armed. Publishes at hz rate specified
 """
@@ -21,7 +21,8 @@ class GroundSimulator:
         self.speed = speed
         self.start_time = rospy.Time.now().to_sec()
 
-        self.rate = rospy.get_param('pub_rate', 3.0)
+        self.pub_rate = rospy.get_param('pub_rate', 3.0)
+        self.rate = rospy.Rate(self.pub_rate)
 
         self.positions = self.df['cumulative_distance'].values
         self.depths = self.df['total depth'].values
@@ -30,24 +31,32 @@ class GroundSimulator:
         self.ping_depth_pub = rospy.Publisher('/feedback_loop/ping_depth', Float64, queue_size=10)
         
         rospy.Subscriber('/mavros/local_position/pose', PoseStamped , self.pose_callback)
+        rospy.Subscriber('/mavros/setpoint_position/local', PoseStamped , self.setpoint_callback)
         
         self.current_ping_depth = 0
         self.current_vehicle_depth = 0
+        self.current_setpoint = 0
         self.vehicle_hx = [[],[]]
+        self.setpoint_hx = []
 
         plt.ion()
         self.fig, self.ax = plt.subplots()
         self.line, = self.ax.plot(self.positions, self.depths, 'b-')
-        self.path, = self.ax.plot([],[], 'r-')
+        self.path, = self.ax.plot([],[], 'r-', label='Flight Path')
         self.vehicle_marker, = self.ax.plot([], [], 'ro', markersize=10)
+        self.setpoints, = self.ax.plot([],[], 'k-', label="Setpoints")
         self.ax.set_xlabel('Distance')
         self.ax.set_ylabel('Depth')
         self.ax.set_title('Vehicle Simulation')
+        self.ax.legend()
         
         self.fig.canvas.mpl_connect('close_event', self.on_close)
         
     def interpolate_depth(self, position):
         return np.interp(position, self.positions, self.depths)
+    
+    def setpoint_callback(self, msg):
+        self.current_setpoint = msg.pose.position.z
 
     def pose_callback(self, msg):
         current_time = rospy.Time.now().to_sec()
@@ -57,6 +66,8 @@ class GroundSimulator:
 
         self.vehicle_hx[0].append(current_position)
         self.vehicle_hx[1].append(self.current_vehicle_depth)
+        self.setpoint_hx.append(self.current_setpoint)
+
 
     def update_plot(self, frame):
         current_time = rospy.Time.now().to_sec()
@@ -69,33 +80,45 @@ class GroundSimulator:
         
         self.vehicle_marker.set_data([current_position], [self.current_vehicle_depth])
         self.path.set_data(self.vehicle_hx)
+        self.setpoints.set_data(self.vehicle_hx[0], self.setpoint_hx)
         self.ax.relim()
         self.ax.autoscale_view()
         self.fig.canvas.draw()
+        self.rate.sleep()
 
     def on_close(self, event):
         rospy.signal_shutdown("Plot window closed")
 
     def run(self):
-        ani = FuncAnimation(self.fig, self.update_plot, interval=1.0/self.rate)
+        ani = FuncAnimation(self.fig, self.update_plot, interval=1.0/10.0)
         plt.show(block=True)
 
 current_state = State()
 run_sim = False
+g_alt = 0
+
+autopilot = rospy.get_param("autopilot", "PX4")
+csv_file = rospy.get_param('csv_file')
+speed = rospy.get_param('speed')
+
+def global_pose_callback(msg):
+    global g_alt
+    g_alt = msg.pose.position.z
 
 def state_cb(msg):
-    if (msg.mode == "OFFBOARD" or msg.mode == 'GUIDED') and msg.armed:
-        csv_file = rospy.get_param('csv_file')
-        speed = rospy.get_param('speed')
-        # rospy.loginfo("Ground Sim Called")
+    if autopilot == "ArduPilot" and msg.mode == 'GUIDED' and msg.armed and g_alt > 0.1:
         simulator = GroundSimulator(csv_file, speed)
-        # rospy.loginfo("Ground Sim Running")
+        simulator.run()
+    if autopilot == "PX4" and msg.mode == 'OFFBOARD' and msg.armed:
+        simulator = GroundSimulator(csv_file, speed)
         simulator.run()
 
 def start_on_offboard():
     rospy.init_node('ground_simulator')
     state_sub = rospy.Subscriber("mavros/state", State, callback = state_cb)
     rospy.spin()
+
+rospy.Subscriber('/mavros/local_position/pose', PoseStamped , global_pose_callback)
 
 if __name__ == '__main__':
     try:
