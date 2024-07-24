@@ -10,20 +10,23 @@ import openpyxl
 Use this section to visualize a single profile 
 """
 
-log_number = 154
+log_number = 157
 pl = PhotoLogData()
-pl.initializeData('Deep_Photo_Logs', log_number)
+pl.initializeData('Documents', log_number, '/home/amotz')
+pl.checkDataQuality()
+print(pl.df)
 pl.applygaussianFilter(discard_extreme=True)
 
 
 ground_raw = xy_signal(pl.df['cumulative_distance'].values, pl.df['total depth'].values)
 ground_smooth = xy_signal(pl.df['cumulative_distance'].values, pl.df['gauss filtered data'])
-flight = xy_signal(*RealTimeFlightPath(ground_raw, 0.5, 3.5))
-checkCollisions(ground_smooth, flight, True)
+flight = xy_signal(*RealTimeFlightPath(ground_raw, 2.0, 1.5, depth_var= 0.5, sensor_var= 10.0, max_y_vel=100))
+# checkCollisions(ground_smooth, flight, True)
 
-# plt.figure(3)
-# plt.plot(flight.x, flight.y, label="Flight Path")
-pl.plotTotal_distance(15, True)
+plt.figure(3)
+plt.plot(flight.x, flight.y, label="Flight Path")
+plt.plot(ground_raw.x ,ground_raw.y, "k.")
+#pl.plotTotal_distance(3, True)
 # pl.plotgaussianFilter_distance(3)
 plt.show()
 
