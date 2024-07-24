@@ -14,7 +14,7 @@ Descriptions of launch file purposes and usage included in readme file within la
 ### Usage
 Ardupilot:
 ```
-roslaunch feedback_control depth_cotroller_ardu.launch
+roslaunch feedback_control depth_controller_ardu.launch
 ``` 
 
 PX4:
