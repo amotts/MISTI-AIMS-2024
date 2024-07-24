@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
 """
 ROS node to simulate the depth sensor data. 
-Reads ground profile from CSV file and interpolates points assuming constant x_velocity a specified in parameters
-Starts running when vehicel is in OFFBOARD or GUIDED and armed. Publishes at hz rate specified
+Reads ground profile from CSV file and interpolates points assuming constant x_velocity a specified in parameters.
+Uses the mavros published vehicle altitude as the pressure depth. Calculates the ping depth as the subtraction of that from the interpolated ground
+Starts running when vehicle is in OFFBOARD or GUIDED and armed (and takeoff for ArduPilot). Publishes at hz rate specified
 """
 
 import rospy
@@ -11,12 +12,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, Float32
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
+from sensor_msgs.msg import Range
 
 class GroundSimulator:
     def __init__(self, csv_file, speed):
+        # Get parameters, read CSV file, and create appropriate class variables
         self.df = pd.read_csv(csv_file)
         self.speed = speed
         self.start_time = rospy.Time.now().to_sec()
@@ -27,18 +30,22 @@ class GroundSimulator:
         self.positions = self.df['cumulative_distance'].values
         self.depths = self.df['total depth'].values
 
-        self.pressure_depth_pub = rospy.Publisher('/feedback_loop/pressure_depth', Float64, queue_size=10) #Should probably publish as a range (CHECK GH Nodes)
+        # Initialize publishers for pressure depth and ping depth
+        self.pressure_depth_pub = rospy.Publisher('/feedback_loop/pressure_depth', Float32, queue_size=10) #Should probably publish as a range (CHECK GH Nodes)
         self.ping_depth_pub = rospy.Publisher('/feedback_loop/ping_depth', Float64, queue_size=10)
         
+        # Subscribe to mavros local pose and current setpooint (for visualizer purposes)
         rospy.Subscriber('/mavros/local_position/pose', PoseStamped , self.pose_callback)
         rospy.Subscriber('/mavros/setpoint_position/local', PoseStamped , self.setpoint_callback)
         
+        # Various variables
         self.current_ping_depth = 0
         self.current_vehicle_depth = 0
         self.current_setpoint = 0
         self.vehicle_hx = [[],[]]
         self.setpoint_hx = []
 
+        # Prepare the plot to be animated
         plt.ion()
         self.fig, self.ax = plt.subplots()
         self.line, = self.ax.plot(self.positions, self.depths, 'b-')
@@ -49,16 +56,20 @@ class GroundSimulator:
         self.ax.set_ylabel('Depth')
         self.ax.set_title('Vehicle Simulation')
         self.ax.legend()
-        
+
+        # Trigger action on window closure
         self.fig.canvas.mpl_connect('close_event', self.on_close)
         
     def interpolate_depth(self, position):
+        # Interpolate and return a depth at the vehicle position
         return np.interp(position, self.positions, self.depths)
     
     def setpoint_callback(self, msg):
+        # save the setpoint as a class variable
         self.current_setpoint = msg.pose.position.z
 
     def pose_callback(self, msg):
+        # Get the current position of the vehicle and save the altitude and setpoint
         current_time = rospy.Time.now().to_sec()
         elapsed_time = current_time - self.start_time
         current_position = self.speed * elapsed_time
@@ -70,14 +81,17 @@ class GroundSimulator:
 
 
     def update_plot(self, frame):
+        # Run the simulation and update plot. 
         current_time = rospy.Time.now().to_sec()
         elapsed_time = current_time - self.start_time
         current_position = self.speed * elapsed_time
         self.current_ping_depth = self.current_vehicle_depth - self.interpolate_depth(current_position)
         
+        # Publish current depth values
         self.ping_depth_pub.publish(self.current_ping_depth)
         self.pressure_depth_pub.publish(self.current_vehicle_depth)
         
+        # Set data and update the animated plot
         self.vehicle_marker.set_data([current_position], [self.current_vehicle_depth])
         self.path.set_data(self.vehicle_hx)
         self.setpoints.set_data(self.vehicle_hx[0], self.setpoint_hx)
@@ -87,6 +101,7 @@ class GroundSimulator:
         self.rate.sleep()
 
     def on_close(self, event):
+        # Shutdown ROS on window closure
         rospy.signal_shutdown("Plot window closed")
 
     def run(self):
@@ -102,9 +117,12 @@ csv_file = rospy.get_param('csv_file')
 speed = rospy.get_param('speed')
 
 def global_pose_callback(msg):
+    # Save pose as a global variable 
     global g_alt
     g_alt = msg.pose.position.z
 
+
+ # Slightly janky method to not start simulator and depth publishing until vehicle is in correct state for the given autopilot
 def state_cb(msg):
     if autopilot == "ArduPilot" and msg.mode == 'GUIDED' and msg.armed and g_alt > 0.1:
         simulator = GroundSimulator(csv_file, speed)
