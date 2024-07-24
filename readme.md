@@ -9,12 +9,37 @@ Ground Simulator publishes a depth value that is taken from the autopilot local 
 
 One concern over this method is error accumulation... Would be potentially good to think about if this is a serious issue and how to reset to ground truth/setpoints
 
+## Launch Files
+Descriptions of launch file purposes and usage included in readme file within launch folder.
+### Usage
+Ardupilot:
+'''
+roslaunch feedback_control depth_cotroller_ardu.launch
+'''  
+
+PX4:
+'''  
+roslaunch feedback_control depth_controller_sim.launch
+'''
+
+
 ## Important Nodes
 ### [Depth Controller](scripts/depth_controller_node.py)
-This node subscribes to the pressure and ping depths and publishes a setpoint based on the data being filtered. This is the node that could be inserted inot the existing Reefscan Deep architecture. 
+This node subscribes to the pressure and ping depths and publishes a setpoint based on the data being filtered. This is the node that could be inserted inot the existing Reefscan Deep architecture. This uses functions imported from the file KalmanFunctions.py.
 
 ### [Ground Simulator](scripts/ground_simulator_node.py)
 This node is the simulator and visualizer for the depth controller. It subscribes as necessary to publish simulated pressure and ping depths and provides a visualization of the terrain from a csv file as well as the vehicle location, path history, and setpoint histories.
 
 ### [Mode Setter](scripts/set_offb.py)
 This node sets the simulated vehicle onto the appropriate mode to allow it to follow the setpoints command of the depth controller. This is modified heavily for the simulated enviornment and probably would not be appropriate to add into the Reefscan architecture. However the autopilot modes will need to be changed somehow before the depth controller can control the vehicle.
+
+## Installation Guides
+I used the following resources to install the necessary packages for the simulations:
+- MavROS
+    - https://masoudir.github.io/mavros_tutorial/
+- ArduPilot
+    - https://ardupilot.org/dev/docs/where-to-get-the-code.html 
+    - https://ardupilot.org/dev/docs/setting-up-sitl-on-linux.html
+- PX4
+    - https://docs.px4.io/main/en/ros/mavros_installation.html#ros-melodic-(ubuntu-18.04)
+    - https://docs.px4.io/main/en/ros/mavros_offboard_python.html
