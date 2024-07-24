@@ -17,6 +17,9 @@ I did my best to commend and provide documentation throughout the files, especia
 TODO: Write explanation for methods and techniques used
 
 ## Uploaded Files
+### [Reefscan Feedback Control](Reefscan-Feedback-Control)
+This folder contains several ROS nodes and launch scripts that subscribe to and publish MavROS messages for controlling vehicle autopilots in a feedback loop. It contains simulation capabilitiy for SITL for both PX4 and ArduPilot. Simulations were done with quadcopters for ease of implementation. [Depth Controler Node](Reefscan-Feedback-Control/scripts/depth_controller_node.py) is the stand alone node that interfaces with the depth sensors and publishes an altitude control signal.
+
 ### [Depth Graphing](DepthGraphing.py)
 This was the first file written and served as a testing space for importing the depth data and plotting it. It uses the same import structure as the temperature graphing from the thermal project. Distance is calculated using a haversine function on the Lat and Long and accumulated with a cum sum. The ping depth, pressure depth, and total depth can be plotted.
 
