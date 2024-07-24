@@ -13,14 +13,14 @@ Full launch file for ArduPilot simulation of depth following
     - Path to ArduPilot will need to be changed to appropriate path
 
 ### [ground_sim.launch](ground_sim.launch)
-DEPRECATED
-Launch file for starting PX4 simulation in offboard mode to test visualization in ground_simulator_node.py
-No feedback control implementd
+DEPRECATED  
+Launch file for starting PX4 simulation in offboard mode to test visualization in ground_simulator_node.py  
+No feedback control implemented 
 
 ### [start_offb.launch](start_offb.launch)
-DEPRECATED
-Original Launch file from tutorial for setting PX4 simulation to OFFBOARD
+DEPRECATED  
+Original Launch file from tutorial for setting PX4 simulation to OFFBOARD 
 
 ### [start_filter_offb.launch](start_filter_offb.launch)
-DEPRECATED
+DEPRECATED  
 Launch file from testing controlling setpoint via a subscribed topic
