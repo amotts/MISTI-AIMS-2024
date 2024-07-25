@@ -83,7 +83,7 @@ class PhotoLogData:
             total_time = self.df['Elapsed Time'].iloc[-1]
             return f'PhotoLog data loaded from log number {self.numlog}. A {self.sensor_id} was used to collect {total_time} seconds of data.'
 
-    def initializeData(self, filepath, numlog):
+    def initializeData(self, filepath, numlog, root_name = r'C:\Users\amotz\Documents'):
         """
         Reads the data from the specified photo log number from the provided folder path. Searches within 'C: Users amotz Documents'
 
@@ -92,7 +92,6 @@ class PhotoLogData:
         Additional columns are created in the df for the elapsed time, distance traveled per data point, the cumulative distance traveled, and the total water depth
         """
         self.numlog = numlog
-        root_name = r'C:\Users\amotz\Documents'
         self.filepath = os.path.join(root_name, filepath)
 
 
@@ -584,7 +583,7 @@ class PhotoLogData:
                 col_dist.append(self.df['cumulative_distance'].iloc[ind])
                 total_collisions += 1
                 if print_all:
-                    print(f"Collision has occured at {ground_data[ind]} m of depth at time {self.df["Elapsed Time"].iloc[ind]} and distance {self.df['cumulative_distance'].iloc[ind]} m.")
+                    print(f"Collision has occured at {ground_data[ind]} m of depth at time {self.df['Elapsed Time'].iloc[ind]} and distance {self.df['cumulative_distance'].iloc[ind]} m.")
         print(f"Finished collision checking. A total of {total_collisions} were found along the fligh path")
         
             

@@ -87,6 +87,7 @@ class RealTimeKalman:
     delta_depth - The initial depth rate of change in m per frame (Default = 0) \\
     upper_extreme - The bounds for downwards single frame change (Default = 5) \\
     lower_extreme - The bounds for upwards single frame change (Default = 2) \\
+    percent_extreme - The percentage of current depth above is considered extreme \\
     extreme_lim - The Number of extreme points ignored before assuming to be valid data \\
     """
     def __init__(self, depth_var=2, sensor_var=10, delta_depth=0, discard_extreme = True, upper_extreme=2, lower_extreme=5, extreme_lim = 2):
