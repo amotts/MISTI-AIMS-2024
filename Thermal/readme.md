@@ -12,6 +12,13 @@ After consultation with Trevor, a heat pipe from the electronics to the end cap 
 
 FEA in NASTRAN confirmed that endcap was insufficient to dissipate the heat. However, once CFD was used, results were significantly different that expected. I'm not completely sure where all the heat is going since the heat fluxes don't quite seem to add up correctly but the interaction is far more spacially dependent than previously considered. 
 
+To complete CFD modeling, a simplified version was constructed in Inventor that reduced the components to primative shapes. Materials were assigned as designed, with PCB material used for the board, and silicon for the components. Heat was generated via volumetric heat generation on the silicon primatives based on the provided power consumption specs. Pressure for the boundary of the interior air and bounding water was set to ambient and the water temperature boundary was set to 30 \degree C.
+
+## Results
+Simulated with various sets of settings and meshes, the overall result supports the need for a thermal solution beyond the existing mounting design. With worst case scenario full power draw, the components significantly exceed operating temperatures and risk major damage. However, from the CFD, it appears that there is much less of a concern about the temperature of the end cap itself reaching high temperatures as the heat is primarily retained within the electronic components themselves.
+
+Our proposed solution is the inclusion of commercially available copper heat pipes to be added between the thermal pad/heat sink underneath the Jetson unit running directly back to the aluminium end cap. This provides a direct pathway for the heat to leave the electronic components to somewhere it can be dissipated rapidly. 
+
 ## Uploaded Files
 ### AIMS Thermal Study
 PDF writeups of the different early stages of the thermal modeling project. Original files are in Overleaf
@@ -30,9 +37,9 @@ Several files on MATLAB online (amotz@mit.edu) for solving system of equations f
 - Housing_Model_Thermal2.m
 
 ### Inventor
-Numerous files in Inventor including part, assembly, STEP, and FEA. I don't know if there is a good way to store/archive them but probably will not be on GitHub.
-- Camera Clamp files
-- Endcap files
+Numerous files in Inventor including part, assembly, STEP, and FEA.  
+Located in \\pearl\techdev\Engineering\MIT Interns 2024\Andrew\Documents
 
 ### CFD
-Numerous file types for the CFD models and settings, and then others for results. Very disorganized at the moment but most files were early attempts and software familiarization. 
+Numerous file types for the CFD models and settings, and then others for results. Very disorganized at the moment but most files were early attempts and software familiarization.  
+Located in \\pearl\techdev\Engineering\MIT Interns 2024\Andrew\Documents
