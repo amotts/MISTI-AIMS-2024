@@ -25,4 +25,8 @@ The End cap file was provided by Trevor and the goal was to improve the thermal 
 
 The best result was a 4mm by 4mm fins of 3mm deep. See notebook for thermal and stress results. Adding fillets to the bottom of the fins significnatly reduced thermal capability. Per discussion with Trevor, decision made to extrude an additonal 3mm to the cap such that the fins do not take away any structural integrity. No fillet was used but a 2mm radius curvature was added to the stopped cuts to allow for the mill bits. 
 
+This file is named End_cap_4x4x3-Extruded
+
 The 3 print of that model reveals that a) removing that much support is annoying, and b) that sharp edges will need to be considered and either chamfered away or removed from the design.
+
+Despite the NASTRAN results, CFD did not appear to have a significant difference between the standard endcap and the finned endcap, however I did not get around to doing direct comparisons with the only independent variable was the endcap style. Further analysis would be helpful to determine if this is a necessary change to the part or not.
