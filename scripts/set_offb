@@ -45,7 +45,6 @@ if __name__ == "__main__":
         rospy.wait_for_service("/mavros/cmd/takeoff")
         takeoff_client = rospy.ServiceProxy("mavros/cmd/takeoff", CommandTOL)
 
-
     # Setpoint publishing MUST be faster than 2Hz
     rate = rospy.Rate(20)
     start_time = rospy.Time.now()
