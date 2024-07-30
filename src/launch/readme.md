@@ -11,6 +11,11 @@ Full launch file for ArduPilot simulation of depth following
 - Requires ardupilot to be installed
 - Utilizes start_ardu_sim.sh to start the ardupilot arducopter simulator
     - Path to ArduPilot will need to be changed to appropriate path
+- ArduPilot simulator will take ~25 seconds to initialize. Wait until console says GPS status is good
+
+### [depth_controller_sim_PhotoLog.launch](depth_controller_sim_PhotoLog.launch)
+Slightly janky version of depth controller sim for PX4 that takes input as a photo log direct from reefscan log file
+- Has some unmaintained hardcoded elements for how to find the log file. File path hardcode will need to be updated to use and file must end with g##.csv where number is the paramter log_num specified.
 
 ### [ground_sim.launch](ground_sim.launch)
 DEPRECATED  

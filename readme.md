@@ -25,10 +25,10 @@ roslaunch feedback_control depth_controller_sim.launch
 
 ## Important Nodes
 ### [Depth Controller](scripts/depth_controller_node.py)
-This node subscribes to the pressure and ping depths and publishes a setpoint based on the data being filtered. This is the node that could be inserted inot the existing Reefscan Deep architecture. This uses functions imported from the file KalmanFunctions.py.
+This node subscribes to the pressure and ping depths and publishes a setpoint based on the data being filtered. This is the node that could be inserted inot the existing Reefscan Deep architecture. This uses classes imported from the file KalmanFunctions.py and SmoothFlight.py.  
 
 ### [Ground Simulator](scripts/ground_simulator_node.py)
-This node is the simulator and visualizer for the depth controller. It subscribes as necessary to publish simulated pressure and ping depths and provides a visualization of the terrain from a csv file as well as the vehicle location, path history, and setpoint histories.
+This node is the simulator and visualizer for the depth controller. It subscribes as necessary to publish simulated pressure and ping depths and provides a visualization of the terrain from a csv file as well as the vehicle location, path history, and setpoint histories. [Ground Simulator for Photolog](scripts/ground_simulator_node_PhotoLog) uses a reefscan photolog input instead of a purpose made CSV, but has some residual hardcoded paths that need to be updated to use.
 
 ### [Mode Setter](scripts/set_offb.py)
 This node sets the simulated vehicle onto the appropriate mode to allow it to follow the setpoints command of the depth controller. This is modified heavily for the simulated enviornment and probably would not be appropriate to add into the Reefscan architecture. However the autopilot modes will need to be changed somehow before the depth controller can control the vehicle.

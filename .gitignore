@@ -4,9 +4,9 @@ __pycache__/
 *$py.class
 
 # Extra Files
-DepthAnalysisFunctions.py
-ground_simulator_node_PhotoLog.py
-depth_controller_sim_PhotoLog.launch
+# DepthAnalysisFunctions.py
+# ground_simulator_node_PhotoLog.py
+# depth_controller_sim_PhotoLog.launch
 
 # C extensions
 *.so
