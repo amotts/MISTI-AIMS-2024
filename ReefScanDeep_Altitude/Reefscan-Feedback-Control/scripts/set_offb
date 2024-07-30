@@ -1,0 +1,127 @@
+#! /usr/bin/env python3
+
+"""
+ROS node for connecting to PX4 or ArduPilot autopilot, changing mode to OFFBOARD/GUIDED, and arming vehicle. 
+
+For PX4:
+Establishes setpoints, changes mode to OFFBOARD, arms vehicle, and kills node to not interfere with depth controller setpoints
+
+For ArduPilot:
+Changes mode to GUIDED, arms vehicle, and commands a takeoff to get vehicle into the air. Does not publish any setpoints
+
+Original code and format from https://docs.px4.io/main/en/ros/mavros_offboard_python.html
+"""
+import rospy
+from geometry_msgs.msg import PoseStamped
+from mavros_msgs.msg import State
+from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest, CommandTOL
+
+current_state = State()
+
+def state_cb(msg):
+    # Save the current state as a global variable
+    global current_state
+    current_state = msg
+
+if __name__ == "__main__":
+    rospy.init_node("set_offb")
+
+    #Get the autopilot type from launch parameters
+    autopilot = rospy.get_param("autopilot", "PX4")
+    rospy.loginfo("Autopilot set to: " + autopilot)
+
+    # Subscribe to the current state and initialize publisher for setpoint
+    state_sub = rospy.Subscriber("mavros/state", State, callback = state_cb)
+    local_pos_pub = rospy.Publisher("mavros/setpoint_position/local", PoseStamped, queue_size=10)
+
+    # Initialize service clients for arming, setting mode, and if applicable, takeoff
+    rospy.wait_for_service("/mavros/cmd/arming")
+    arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)
+
+    rospy.wait_for_service("/mavros/set_mode")
+    set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
+
+    if autopilot == "ArduPilot":
+        rospy.wait_for_service("/mavros/cmd/takeoff")
+        takeoff_client = rospy.ServiceProxy("mavros/cmd/takeoff", CommandTOL)
+
+    # Setpoint publishing MUST be faster than 2Hz
+    rate = rospy.Rate(20)
+    start_time = rospy.Time.now()
+
+    # Wait for Flight Controller connection
+    while(not rospy.is_shutdown() and not current_state.connected):
+        rospy.logwarn_throttle_identical(2,"No connection to Flight Controller")
+        rate.sleep() 
+    rospy.loginfo("Connection Found")
+    
+    pose = PoseStamped()
+    pose.pose.position.x = 0
+    pose.pose.position.y = 0
+
+    # PX4 requires setpoints to constantly exist for offboard mode. publish setpoint before mode change
+    if autopilot == "PX4":
+        for _ in range(100):
+            if(rospy.is_shutdown()):
+                break
+            local_pos_pub.publish(pose)
+            rate.sleep()
+
+    # Set the new mode request to the appropriate version for the autopilot
+    offb_set_mode = SetModeRequest()
+
+    if autopilot == "ArduPilot":
+        mode_str = 'GUIDED'
+    elif autopilot == "PX4":
+        mode_str = 'OFFBOARD'
+    else:
+        rospy.logwarn("Invalid autopilot parameter. Killing Node")
+        rospy.signal_shutdown("Set Offb closed")
+        exit(1)
+
+    offb_set_mode.custom_mode = mode_str
+
+    # Set the arm command to arm
+    arm_cmd = CommandBoolRequest()
+    arm_cmd.value = True
+
+    # Track time from sending a request
+    last_req = rospy.Time.now()
+
+    while(not rospy.is_shutdown()):
+        # If the mode is not the intended mode, send a change mode request every 5.0 seconds until correct
+        if(current_state.mode != mode_str and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
+            if(set_mode_client.call(offb_set_mode).mode_sent == True):
+                rospy.loginfo(mode_str + " enabled")
+            last_req = rospy.Time.now()
+        else:
+            # Once mode is correct, if vehicle is not armed, request arming every 5.0 seconds until sucessful
+            if(not current_state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
+                if(arming_client.call(arm_cmd).success == True):
+                    rospy.loginfo("Vehicle armed")
+                    rospy.sleep(rospy.Duration(3))
+                    # For Ardupilot, vehicle must have takeoff command issued before can initiate setpoint following
+                    if autopilot == "ArduPilot":
+                        takeoff_req = CommandTOL()
+                        takeoff_req.min_pitch = 0.0
+                        takeoff_req.yaw = 0.0
+                        takeoff_req.latitude = 0.0
+                        takeoff_req.longitude = 0.0
+                        takeoff_req.altitude = 5.0
+
+                        if takeoff_client.call(takeoff_req.min_pitch, takeoff_req.yaw, takeoff_req.latitude, takeoff_req.longitude, takeoff_req.altitude).success:
+                            rospy.loginfo("Takeoff successful")
+                        else:
+                            rospy.logerr("Takeoff failed")
+
+                last_req = rospy.Time.now()
+
+        # For PX4, continue publishing setpoints until the vehicle is armed and depth controller will take over. Nevessary to avoid a nav state error
+        if autopilot == "PX4":
+            if not current_state.armed:
+                pose.pose.position.z = 5.0
+                local_pos_pub.publish(pose)
+            else:
+                rospy.signal_shutdown("Set Offb closed")
+
+            rate.sleep()
