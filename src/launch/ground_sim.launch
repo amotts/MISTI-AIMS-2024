@@ -4,7 +4,7 @@
 	</include>
 
 	<!-- Our node to control the drone -->
-	<node pkg="feedback_control" type="offb_node" name="offb_node_py" required="true" output="screen" />
+	<node pkg="feedback_control" type="set_offb" name="offb_node_py" output="screen" />
 
 	<node pkg="feedback_control" type="ground_simulator_node" name="vehicle_simulator" required="true" output="screen"/>
       <param name="csv_file" value="/home/amotz/Documents/Test_Ground_1.csv"/>
