@@ -14,7 +14,7 @@ from feedback_control.KalmanFunctions import *
 from feedback_control.SmoothFlight import *
 #from br_msgs.msg import ping1d_distance_simple
 
-class KalmanDepthController:
+class DepthController:
     def __init__(self):
         # Initialize and get parameters from launch file
         self.initial_depth = rospy.get_param('initial_depth', 5.0)
@@ -26,6 +26,16 @@ class KalmanDepthController:
         self.upper_extreme=rospy.get_param('upper_extreme', 2)
         self.lower_extreme=rospy.get_param('lower_extreeme', 5)
         self.extreme_lim = rospy.get_param('extreme_lim', 2)
+
+        self.max_allowable_change = rospy.get_param('max_allowable_change', 0.6)
+        self.min_n = rospy.get_param('min_n', 3)
+        self.kernel = rospy.get_param('kernel', [1, 0.8,0.64,0.512,0.4096,0.32768,0.262144,0.2097152,0.16777216])
+
+        try:
+            assert (len(self.kernel) >= self.min_n)
+        except AssertionError:
+            rospy.logwarn("Kernel is too small. Minimum n set to kernel size")
+            self.min_n = len(self.kernel)
 
         # Initialize a Kalman Filter using the provided parameters
         self.kf = RealTimeKalman(self.depth_var, self.sensor_var, self.delta_depth, self.discard_extreme, self.upper_extreme, self.lower_extreme, self.extreme_lim)
@@ -64,7 +74,7 @@ class KalmanDepthController:
 if __name__ == '__main__':
     # Initialise node with rospy
     rospy.init_node('depth_controller', anonymous=True)
-    depth_controller = KalmanDepthController()
+    depth_controller = DepthController()
 
     # Go into the spin() loop so rospy can
     try:

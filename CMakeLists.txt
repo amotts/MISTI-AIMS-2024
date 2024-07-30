@@ -167,7 +167,7 @@ catkin_install_python(PROGRAMS
   scripts/offb_node
   scripts/ping_pub
   scripts/set_offb
-  # scripts/ground_simulator_node
+  scripts/ground_simulator_node_PhotoLog
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
