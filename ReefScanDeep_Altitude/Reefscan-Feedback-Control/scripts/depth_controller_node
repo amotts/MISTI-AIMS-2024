@@ -14,6 +14,9 @@ from feedback_control.KalmanFunctions import *
 from feedback_control.SmoothFlight import *
 #from br_msgs.msg import ping1d_distance_simple
 
+PING_DEPTH_TOPIC = "feedback_loop/ping_depth"
+PRESSURE_DEPTH_TOPIC = "feedback_loop/pressure_depth"
+
 class DepthController:
     def __init__(self):
         # Initialize and get parameters from launch file
@@ -29,7 +32,7 @@ class DepthController:
 
         self.max_allowable_change = rospy.get_param('max_allowable_change', 0.6)
         self.min_n = rospy.get_param('min_n', 3)
-        self.kernel = rospy.get_param('kernel', [1, 0.8,0.64,0.512,0.4096,0.32768,0.262144,0.2097152,0.16777216])
+        self.kernel = rospy.get_param('kernel', [1, 0.8,0.64,0.512,0.4096,0.32768,0.262144,0.2097152,0.16777216]) # [0.8^n]
 
         try:
             assert (len(self.kernel) >= self.min_n)
@@ -41,14 +44,15 @@ class DepthController:
         self.kf = RealTimeKalman(self.depth_var, self.sensor_var, self.delta_depth, self.discard_extreme, self.upper_extreme, self.lower_extreme, self.extreme_lim)
         self.kf.set_initial_values(self.initial_depth)
 
-        self.SmoothFlight = SmoothFlight()
+        # Initialize a convolutional smoothing filter
+        self.SmoothFlight = SmoothFlight(self.max_allowable_change, self.min_n, self.kernel)
 
         self.command_pose = PoseStamped()
         self.command_pose.header.frame_id = "map"
 
         # self.state_sub = rospy.Subscriber("mavros/state", State, self.state_cb)
-        self.ping_sub = rospy.Subscriber("feedback_loop/ping_depth", Float64, self.ping_rec)
-        self.ping_sub = rospy.Subscriber("feedback_loop/pressure_depth", Float32, self.pressure_rec)
+        self.ping_sub = rospy.Subscriber(PING_DEPTH_TOPIC, Float64, self.ping_rec)
+        self.ping_sub = rospy.Subscriber(PRESSURE_DEPTH_TOPIC, Float32, self.pressure_rec)
         self.cmd_pos_pub = rospy.Publisher("mavros/setpoint_position/local", PoseStamped, queue_size=2)
 
         self.alt_delta = None
@@ -65,7 +69,8 @@ class DepthController:
 
     def publish_alt(self):
         # Function for publishing an altitude command by applying the difference from desired altitude to the pressure depth to get a new setpoint
-        if self.vehicle_depth != None and self.alt_delta != None: 
+        if self.vehicle_depth != None and self.alt_delta != None:
+            # Run the convolutional filter on the commanded depth 
             command_depth = self.SmoothFlight.run(self.vehicle_depth - self.alt_delta)
             self.command_pose.pose.position.z = command_depth
             self.cmd_pos_pub.publish(self.command_pose)

@@ -19,10 +19,13 @@ from mavros_msgs.msg import State
 from sensor_msgs.msg import Range
 from feedback_control.DepthAnalysisFunctions import *
 
+PING_DEPTH_TOPIC = "/feedback_loop/ping_depth"
+PRESSURE_DEPTH_TOPIC = "/feedback_loop/pressure_depth"
+
 class GroundSimulator:
     def __init__(self, log_number, speed):
         self.pl = PhotoLogData()
-        self.pl.initializeData('Documents', log_number, root_name='/home/amotz')
+        self.pl.initializeData('Documents', log_number, root_name='/home/amotz') # <-- HARDCODED PATH HERE
         self.speed = speed
         self.start_time = rospy.Time.now().to_sec()
 
@@ -32,8 +35,8 @@ class GroundSimulator:
         self.positions = self.pl.df['cumulative_distance'].values
         self.depths = self.pl.df['total depth'].values + 30
         # Initialize publishers for pressure depth and ping depth
-        self.pressure_depth_pub = rospy.Publisher('/feedback_loop/pressure_depth', Float32, queue_size=10) #Should probably publish as a range (CHECK GH Nodes)
-        self.ping_depth_pub = rospy.Publisher('/feedback_loop/ping_depth', Float64, queue_size=10)
+        self.pressure_depth_pub = rospy.Publisher(PRESSURE_DEPTH_TOPIC, Float32, queue_size=10) #Should probably publish as a range (CHECK GH Nodes)
+        self.ping_depth_pub = rospy.Publisher(PING_DEPTH_TOPIC, Float64, queue_size=10)
         
         # Subscribe to mavros local pose and current setpooint (for visualizer purposes)
         rospy.Subscriber('/mavros/local_position/pose', PoseStamped , self.pose_callback)
