@@ -19,6 +19,8 @@ Simulated with various sets of settings and meshes, the overall result supports 
 
 Our proposed solution is the inclusion of commercially available copper heat pipes to be added between the thermal pad/heat sink underneath the Jetson unit running directly back to the aluminium end cap. This provides a direct pathway for the heat to leave the electronic components to somewhere it can be dissipated rapidly. Introducing fins and increasing the surface area of the endcap may also improve dissipation capability into the water.
 
+CFD results can be found in the file \CFD-Models\Default Housing Study\Default housing study.
+
 ## Uploaded Files
 ### AIMS Thermal Study
 PDF writeups of the different early stages of the thermal modeling project. Original files are in Overleaf
